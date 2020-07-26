@@ -189,6 +189,14 @@ namespace Kubachb2D
                 return null;
         }
 
+        public void BreakTileWithCoords(int x, int y)
+        {
+            if(!(x < 0 || x > tiles.GetLength(0) - 1 || y < 0 || y > tiles.GetLength(1) - 1) && tiles[x, y] != null)
+            {
+                tiles[x, y] = null;
+            }
+        }
+
         public void Draw(RenderTarget target, RenderStates states)
         {
             int n = 0;

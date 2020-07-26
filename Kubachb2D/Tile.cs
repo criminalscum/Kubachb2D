@@ -18,6 +18,10 @@ namespace Kubachb2D
         WORKBENCH, FURNACE, CHEST, TORCH, BED_BOT, BED_TOP,
         LAVA, WATER
     }
+    enum ToolType
+    {
+        NONE, HAND, SHOVEL, AXE, WOODEN_PICKAXE, STONE_PICKAXE, IRON_PICKAXE, DIAMOND_PICKAXE, UNBREAKABLE
+    }
     class Tile : Transformable, Drawable
     {
         public const int TILE_SIZE = 64;
@@ -26,7 +30,7 @@ namespace Kubachb2D
         public bool IsLit = false;
         public bool isAlternated = false;
         public int flow=0;
-        public Dictionary<TileType, IntRect> textureRects = new Dictionary<TileType, IntRect>()
+        public static Dictionary<TileType, IntRect> textureRects = new Dictionary<TileType, IntRect>()
         {
             {TileType.STONE, new IntRect(0,0,16,16) }, {TileType.DIRT, new IntRect(16, 0, 16, 16) }, { TileType.GRASS, new IntRect(16*2,0,16,16) },
             {TileType.SAND, new IntRect(0,16,16,16) }, {TileType.GRAVEL, new IntRect(16,16,16,16) }, {TileType.SNOWY_DIRT, new IntRect(16*2, 16, 16, 16) },
@@ -42,6 +46,20 @@ namespace Kubachb2D
             {TileType.IRON_BLOCK, new IntRect(16,16*4,16,16) }, {TileType.COAL_BLOCK, new IntRect(16*2,16*4,16,16) }, {TileType.DIAMOND_BLOCK, new IntRect(16*3,16*4,16,16) },
             {TileType.REDSTONE_BLOCK, new IntRect(16*4,16*4,16,16) }, {TileType.LAPIS_BLOCK, new IntRect(16*5,16*4,16,16) }, {TileType.CACTUS, new IntRect(16*6,16*4,16,16)},
              {TileType.WORKBENCH, new IntRect(0,16*5,16,16) }, {TileType.CHEST, new IntRect(16*3,16*5,16,16) }, {TileType.TORCH, new IntRect(16*4,16*5,16,16) }
+        };
+        public static Dictionary<TileType, ToolType> binstr = new Dictionary<TileType, ToolType>()
+        {
+            {TileType.SAND, ToolType.SHOVEL},{TileType.DIRT, ToolType.SHOVEL},{TileType.GRASS, ToolType.SHOVEL},{TileType.OAK_LEAVES, ToolType.NONE},{TileType.OAK_LOG, ToolType.AXE},
+            {TileType.OAK_PLANKS, ToolType.AXE},{TileType.COBBLESTONE, ToolType.WOODEN_PICKAXE},{TileType.STONE_BRICKS, ToolType.WOODEN_PICKAXE},{TileType.STONE, ToolType.WOODEN_PICKAXE},
+            {TileType.GRAVEL, ToolType.SHOVEL}, {TileType.SNOWY_DIRT, ToolType.SHOVEL}, {TileType.SPRUCE_LEAVES, ToolType.NONE}, {TileType.SPRUCE_LOG, ToolType.AXE}, {TileType.SPRUCE_PLANKS, ToolType.AXE},
+            {TileType.BRICKS, ToolType.WOODEN_PICKAXE},{TileType.CLAY, ToolType.SHOVEL}, {TileType.WOOL, ToolType.HAND}, {TileType.ICE, ToolType.NONE}, {TileType.SNOW, ToolType.SHOVEL},
+            {TileType.BIRCH_LEAVES, ToolType.NONE},{TileType.BIRCH_LOG, ToolType.AXE},{TileType.BIRCH_PLANKS, ToolType.AXE},{TileType.GLASS, ToolType.NONE},{TileType.SANDSTONE, ToolType.WOODEN_PICKAXE},
+            {TileType.GOLD_ORE, ToolType.IRON_PICKAXE}, {TileType.IRON_ORE, ToolType.STONE_PICKAXE},{TileType.COAL_ORE, ToolType.WOODEN_PICKAXE},{TileType.DIAMOND_ORE, ToolType.IRON_PICKAXE},
+            {TileType.REDSTONE_ORE, ToolType.IRON_PICKAXE},{TileType.LAPIS_ORE, ToolType.STONE_PICKAXE},{TileType.OBSIDIAN, ToolType.DIAMOND_PICKAXE}, {TileType.BEDROCK, ToolType.UNBREAKABLE },
+            {TileType.GOLD_BLOCK, ToolType.IRON_PICKAXE },{TileType.IRON_BLOCK, ToolType.STONE_PICKAXE},{TileType.COAL_BLOCK, ToolType.WOODEN_PICKAXE},{TileType.DIAMOND_BLOCK, ToolType.IRON_PICKAXE },
+            {TileType.REDSTONE_BLOCK, ToolType.IRON_PICKAXE},{TileType.LAPIS_BLOCK, ToolType.STONE_PICKAXE},{TileType.CACTUS, ToolType.HAND}, {TileType.WORKBENCH, ToolType.AXE},
+            {TileType.FURNACE, ToolType.WOODEN_PICKAXE},{TileType.CHEST, ToolType.AXE},{TileType.TORCH, ToolType.HAND}, {TileType.BED_BOT, ToolType.HAND}, {TileType.BED_TOP, ToolType.HAND},
+            {TileType.LAVA, ToolType.UNBREAKABLE},{TileType.WATER, ToolType.UNBREAKABLE}
         };
         public Tile(TileType type)
         {

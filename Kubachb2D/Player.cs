@@ -30,16 +30,22 @@ namespace Kubachb2D
         public bool flying = true;
 
         private float animtime;
+        private float breaktime;
+        private Vector2i oldbCursor;
 
         public Player(Vector2f pos)
         {
             crosshair = new RectangleShape(new Vector2f(Tile.TILE_SIZE, Tile.TILE_SIZE));
+            crosshair.Texture = Content.BreakAnim;
+            crosshair.TextureRect = new IntRect(0,0,16,16);
+            crosshair.FillColor = Color.White;
             debugBlock = new RectangleShape(new Vector2f(Tile.TILE_SIZE, Tile.TILE_SIZE));
-            debugBlock.FillColor = crosshair.FillColor = Color.Transparent;
+            debugBlock.FillColor = Color.Transparent;
             debugBlock.OutlineThickness = crosshair.OutlineThickness = 1;
             debugBlock.OutlineColor = Color.Red;
             crosshair.OutlineColor = Color.White;
 
+            breaktime = 0f;
             animtime = 0f;
 
             Position = pos;
@@ -87,15 +93,16 @@ namespace Kubachb2D
             Vector2i mousepos = Mouse.GetPosition(Program.Window);
             if (!Program.game.freecam)
                 head.Rotation = 50f * Convert.ToSingle(Math.Atan((mousepos.Y - (0.5 * Program.HEIGHT) + 60) / (mousepos.X - (0.5f * Program.WIDTH))));
-            
+
             if (lkeypressed)
             {
-                if(mousepos.X - (0.5f * Program.WIDTH) < 0)
+                breaktime += elapsed.AsSeconds();
+                if (mousepos.X - (0.5f * Program.WIDTH) < 0)
                 {
                     if (rightArm.Rotation < 30f)
                         rightArm.Rotation = 60f;
                     else
-                        rightArm.Rotation -= 120*elapsed.AsSeconds();
+                        rightArm.Rotation -= 120 * elapsed.AsSeconds();
                 }
                 else
                 {
@@ -106,7 +113,10 @@ namespace Kubachb2D
                 }
             }
             else
+            {
+                breaktime = 0f;
                 rightArm.Rotation = 0f;
+            }
 
             int blockOnX = (int)((Position.X / Tile.TILE_SIZE));
             int blockOnY = (int)Math.Ceiling((Position.Y + 1.125f * Tile.TILE_SIZE) / Tile.TILE_SIZE);
@@ -126,8 +136,57 @@ namespace Kubachb2D
             Vector2f cursorPos = vcenter + new Vector2f(mousepos.X-(0.5f*Program.WIDTH), mousepos.Y-(0.5f*Program.HEIGHT));
             Vector2i bCursor = new Vector2i((int)(cursorPos.X/Tile.TILE_SIZE), (int)(cursorPos.Y/Tile.TILE_SIZE));
             crosshair.Position = new Vector2f(bCursor.X*Tile.TILE_SIZE, bCursor.Y*Tile.TILE_SIZE);
-
+            if (bCursor != oldbCursor)
+                breaktime = 0f;
             Tile inTile = Program.game.level.GetTileWithCoords(blockOnX, blockOnY-1);
+            Tile bTile = Program.game.level.GetTileWithCoords(bCursor.X, bCursor.Y);
+            oldbCursor = bCursor;
+            /*if(bTile != null)
+                Console.WriteLine(bTile.type);*/
+            if(bTile != null)
+            {
+                float blockbrtime = 0f;
+                bool unb = false;
+                switch (Tile.binstr[bTile.type])
+                {
+                    case ToolType.NONE:
+                        blockbrtime = 0.35f;
+                        break;
+                    case ToolType.SHOVEL:
+                        blockbrtime = 0.75f;
+                        break;
+                    case ToolType.WOODEN_PICKAXE:
+                        blockbrtime = 7.5f;
+                        break;
+                    case ToolType.UNBREAKABLE:
+                        unb = true;
+                        break;
+                    case ToolType.HAND:
+                        blockbrtime = 0.65f;
+                        break;
+                    case ToolType.STONE_PICKAXE:
+                        blockbrtime = 15f;
+                        break;
+                    case ToolType.IRON_PICKAXE:
+                        blockbrtime = 15f;
+                        break;
+                    case ToolType.DIAMOND_PICKAXE:
+                        blockbrtime = 100f;
+                        break;
+                    case ToolType.AXE:
+                        blockbrtime = 3f;
+                        break;
+                }
+                int x = !unb ? (int)Math.Floor((11*breaktime)/blockbrtime) : 0;
+                if (x > 10) {
+                    Program.game.level.BreakTileWithCoords(bCursor.X, bCursor.Y); 
+                }
+                else
+                    crosshair.TextureRect = new IntRect(16*x,0,16,16);
+            }
+            else
+                crosshair.TextureRect = new IntRect(0, 0, 16, 16);
+
             if (myTile!=null)
                 debugBlock.Position = myTile.Position;
             if(myTile != null && myTile.amICollidable() && Velocity.Y >= 0f)
